@@ -1,0 +1,21 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('SCM') {
+            steps { git 'https://github.com/awspandian/john.git'          
+            }
+        }
+	stage('CICD') {
+            steps {
+			sh label: '', script: 'mvn clean'
+			sh label: '', script: 'mvn install'
+            }
+        }
+   stage('Deployment') {
+            steps {   
+            sh label: '', script: 'cp -rp "/var/lib/jenkins/workspace/test-pipe/target/ddeploy.war" "/opt/apache-tomcat/webapps"'			
+            }
+        }
+    }
+}
