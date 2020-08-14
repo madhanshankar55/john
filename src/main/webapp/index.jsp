@@ -1,5 +1,5 @@
 <html>
 <body>
-<h2>Testing the poll SCM commit build</h2>
+<h2>New build using POLLSCM</h2>
 </body>
 </html>
