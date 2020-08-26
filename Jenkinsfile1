@@ -1,0 +1,17 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('SCM') {
+            steps {
+                git 'https://github.com/awspandian/john.git'
+            }
+        }
+        stage('build') {
+            steps {
+                sh label: '', script: 'mvn clean'
+                sh label: '', script: 'mvn install'
+            }
+        }
+    }
+}
