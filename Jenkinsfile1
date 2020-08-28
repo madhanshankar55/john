@@ -41,5 +41,27 @@ pipeline {
         }
         }
         }
+        stage('DeployToProduction'){
+            when {
+            branch 'master'
+            }
+            steps {
+              input 'Deploy to Production?'
+              milestone(1)
+              withCredentials([usernamePassword(credentialsId: 'web_server', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
+                 script { 
+                       sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$prod_ip \"docker pull dockerpandian/dd-project:${env.BUILD_NUMBER}\""
+                        try {
+                            sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$prod_ip \"docker stop HIPPO\""
+                            sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$prod_ip \"docker rm HIPPO\""
+                        } catch (err) {
+                            echo: 'caught error: $err'
+                        }
+                        sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$prod_ip \"docker run --restart always --name HIPPO -p 8080:8080 -d dockerpandian/dd-project:${env.BUILD_NUMBER}\""
+                    }
+                 }
+              }
+            }
+        }
     }
-}
+
