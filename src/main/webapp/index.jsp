@@ -1,5 +1,5 @@
 <html>
 <body>
-<h2>New build using POLLSCM</h2>
+<h2>New build for Docker deployment</h2>
 </body>
 </html>
