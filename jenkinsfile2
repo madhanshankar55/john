@@ -1,0 +1,25 @@
+node {
+	
+	def buildNumber = BUILD_NUMBER
+	stage("Git"){
+		git url: 'https://github.com/awspandian/john.git' , branch: 'master'
+	}
+	stage("Maven Build"){
+		def mavenHome= tool name: "Maven",type: "maven"
+		sh "${mavenHome}/bin/mvn clean install"
+	}
+	stage("Build Docker Image"){
+		sh "docker build -t dockerpandian/pipline:${buildNumber} ."
+	}
+	stage("Docker Image Push In DockerHub"){
+	    withCredentials([string(credentialsId: 'hub', variable: 'hub')]) {
+		sh "docker login -u dockerpandian -p ${hub}" }
+		sh "docker push dockerpandian/pipline:${buildNumber}"
+	}
+	stage("Docker Deploy in Docker Server"){
+		sshagent(['Docker_Test']) {
+		sh "ssh -o StrictHostKeyChecking=no centos@10.0.100.127 docker rm -f demo_pro || true"
+		sh "ssh  -o StrictHostKeyChecking=no centos@10.0.100.127 docker run -d -p 8080:8080 --name demo_pro dockerpandian/pipline:${buildNumber} "
+}
+	}
+}
